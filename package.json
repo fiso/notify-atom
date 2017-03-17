@@ -1,0 +1,19 @@
+{
+  "name": "notify-atom",
+  "main": "./lib/notify-atom",
+  "version": "0.0.1",
+  "description": "Provides a way for scripts and applications to pass notifications into Atom",
+  "keywords": [],
+  "activationEvents": [
+    "atom-plugin:run"
+  ],
+  "repository": "https://github.com/fiso/notify-atom",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+    "querystring": "^0.2.0",
+    "websocket": "^1.0.24"
+  }
+}
