@@ -14,7 +14,7 @@ any working code for them.
 
 ## How do I use it?
 
-The package starts an http server, listening on port 8090 (port number currently not configurable, sorry) on your machine. This server will react to POST requests that contain the `type` and `message` parameters, where `type` is one of `success, info, warning, error, fatalerror` and message can be any string.
+The package starts an http server, listening on port 8090 (configurable) on your machine. This server will react to POST requests that contain the `type` and `message` parameters, where `type` is one of `success, info, warning, error, fatalerror` and message can be any string.
 
 Here's an example CURL command line you use, to verify that it's working:
 ```bash

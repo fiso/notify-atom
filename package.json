@@ -15,5 +15,9 @@
   "dependencies": {
     "querystring": "^0.2.0",
     "websocket": "^1.0.24"
+  },
+  "devDependencies": {
+    "eslint": "^3.18.0",
+    "eslint-config-google": "^0.7.1"
   }
 }
