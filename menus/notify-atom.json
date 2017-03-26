@@ -1,26 +1,2 @@
 {
-  "context-menu": {
-    "atom-text-editor": [
-      {
-        "label": "Toggle notify-atom",
-        "command": "notify-atom:toggle"
-      }
-    ]
-  },
-  "menu": [
-    {
-      "label": "Packages",
-      "submenu": [
-        {
-          "label": "notify-atom",
-          "submenu": [
-            {
-              "label": "Toggle",
-              "command": "notify-atom:toggle"
-            }
-          ]
-        }
-      ]
-    }
-  ]
 }
