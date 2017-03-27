@@ -1,7 +1,7 @@
 {
   "name": "notify-atom",
   "main": "./lib/notify-atom",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Provides a way for scripts and applications to pass notifications into Atom",
   "keywords": [],
   "activationEvents": [
