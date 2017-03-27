@@ -18,7 +18,8 @@ The package starts an http server, listening on port 8090 (configurable) on your
 
 Here's an example CURL command line you use, to verify that it's working:
 ```bash
-curl --data "type=info&message=Script is running..." http://localhost:8090
+
+curl --data '{"type":"info","message":"It works"}' http://localhost:8090
 ```
 
 Then use any way of making an http POST request in your scripts, to make them talk back to you when they need to.
@@ -26,38 +27,70 @@ Then use any way of making an http POST request in your scripts, to make them ta
 Here's a longer example of a Node.js script you can pipe your stderr to:
 
 ```javascript
-const querystring = require("querystring");
 const http = require("http");
-const fs = require("fs");
 const readline = require("readline");
-function postNotification (type, message) {
-  const postData = querystring.stringify({
-    type, message,
+
+function postNotification (type, message, description) {
+  const body = JSON.stringify({
+    type, message, description,
   });
 
-  const postOptions = {
-    host: "localhost",
-    port: "8090",
-    path: "/",
+  const request = http.request({
+    url: "http://localhost/",
+    port: 8090,
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Content-Length": Buffer.byteLength(postData),
+      "Content-Type": "application/json",
+      "Content-Length": Buffer.byteLength(body),
     },
-  };
-
-  const request = http.request(postOptions, function (result) {
-    result.setEncoding("utf8");
-    result.on("data", function (chunk) {
-      console.log("Response: " + chunk);
-    });
   });
-
-  request.write(postData);
-  request.end();
+  request.end(body);
 }
 
-postNotification("info", "Dev runner started");
+function isSassError (line) {
+  const lowLine = line.toLocaleLowerCase();
+  if (
+    lowLine.indexOf("invalid css") !== -1 &&
+    lowLine.indexOf("\"formatted\"") !== -1 &&
+    lowLine.indexOf("\"formatted\"") < lowLine.indexOf("invalid css")
+    ||
+    lowLine.indexOf("error") !== -1 &&
+    lowLine.indexOf("\"formatted\"") !== -1 &&
+    lowLine.indexOf("\"formatted\"") < lowLine.indexOf("error")
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+function parseSassError (line) {
+  const lowLine = line.toLocaleLowerCase();
+  const lineNum = line.substring(lowLine.indexOf("on line ") +
+    "on line ".length, lowLine.indexOf(" ", lowLine.indexOf("on line ") +
+      "on line ".length)).trim();
+  const sourceFile = line.substring(lowLine.indexOf(" of ",
+    lowLine.indexOf("on line ")) + " of ".length, lowLine.indexOf("\\n",
+    lowLine.indexOf("on line "))).trim();
+  return `Invalid sass syntax on line ${lineNum} of ${sourceFile}`;
+}
+
+function isJSError (line) {
+  const lowLine = line.toLocaleLowerCase();
+  if (
+    lowLine.indexOf("syntaxerror") !== -1
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+function parseJSError (line) {
+  return line;
+}
+
+postNotification("info", "Build system", "Dev runner started");
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -66,11 +99,14 @@ const rl = readline.createInterface({
 });
 
 rl.on("line", function (line) {
-  // Here, you'll want to have some smarter detection of whether the line is
-  // actually an error or not, plus format the error message nicely.
-  if (line.toLocaleLowerCase().indexOf("error") !== -1) {
-    console.log(line);
-    postNotification("error", line);
+  console.error(line);
+  if (isSassError(line)) {
+    postNotification("error", "Error compiling sass", parseSassError(line));
+  } else if (isJSError(line)) {
+    postNotification("error", "Error compiling JavaScript",
+      parseJSError(line));
+  } else if (line.toLocaleLowerCase().indexOf("error") !== -1) {
+    postNotification("error", "Unknown build error", line);
   }
 });
 ```
